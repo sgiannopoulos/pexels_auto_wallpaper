@@ -4,6 +4,7 @@ using System.Net;
 using PexelsDotNetSDK.Api;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
+using PexelsDotNetSDK.Models;
 
 // DLL Import to set the wallpaper
 [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -14,22 +15,25 @@ static extern Int32 SystemParametersInfo(UInt32 action, UInt32 uParam, string vP
 var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 string ApiKey = config["API_KEY"];
 int pageSizeInput = int.Parse(config["PageSize"]);
+string searchQuery = config["SearchQuery"];
 
 var pexelsClient = new PexelsClient(ApiKey);
 
-var result = await pexelsClient.SearchPhotosAsync("background",pageSize:pageSizeInput);
+var result = await pexelsClient.SearchPhotosAsync(searchQuery, pageSize:pageSizeInput);
 
 if (result.photos.Any())
 {
-    //SetWallpaper(result.photos.First().url);
+    var generator = new Random();
     using (WebClient client = new WebClient())
     {
-        string url = result.photos.First().source.original;
-        string photoName = result.photos.First().alt;
+        int selection = generator.Next(0, pageSizeInput - 1);
+        Photo wallpaper = result.photos.ToList()[selection];
+        
+        string url = wallpaper.source.original;
+        string photoName = wallpaper.alt;
         string fileName = @"C:\Users\Sotos\Pictures\Pexels\" + photoName + '.' + url.Split('.').Last();
         
         client.DownloadFile(new Uri(url), fileName);
-        
         SetWallpaper(fileName);
     }
 }
