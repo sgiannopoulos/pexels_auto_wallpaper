@@ -15,18 +15,30 @@ static extern Int32 SystemParametersInfo(UInt32 action, UInt32 uParam, string vP
 var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 string ApiKey = config["API_KEY"];
 int pageSizeInput = int.Parse(config["PageSize"]);
+
+var generator = new Random();
+int selection = generator.Next(0, pageSizeInput - 1);
+int page = 1;
+
+if (selection > 80)
+{
+    page = selection / 80 + 1;
+    selection = selection % 80;
+}
+
+
 string searchQuery = config["SearchQuery"];
+
+Console.WriteLine("Updating Wallpaper");
 
 var pexelsClient = new PexelsClient(ApiKey);
 
-var result = await pexelsClient.SearchPhotosAsync(searchQuery, pageSize:pageSizeInput);
+var result = await pexelsClient.SearchPhotosAsync(searchQuery, page:page, pageSize:pageSizeInput);
 
 if (result.photos.Any())
 {
-    var generator = new Random();
     using (WebClient client = new WebClient())
     {
-        int selection = generator.Next(0, pageSizeInput - 1);
         Photo wallpaper = result.photos.ToList()[selection];
         
         string url = wallpaper.source.original;
