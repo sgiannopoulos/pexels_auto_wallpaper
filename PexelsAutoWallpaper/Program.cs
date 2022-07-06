@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Net;
+﻿using System.Net;
 using PexelsDotNetSDK.Api;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
@@ -43,8 +41,8 @@ if (result.photos.Any())
         
         string url = wallpaper.source.original;
         string photoName = wallpaper.alt;
-        string fileName = @"C:\Users\Sotos\Pictures\Pexels\" + photoName + '.' + url.Split('.').Last();
-        
+        //string fileName = @"C:\Users\%USER%\Pictures\Pexels\" + photoName + '.' + url.Split('.').Last();
+        string fileName =  "C:\\Users\\" + Environment.UserName.ToString() + "\\Pictures\\Pexels\\" + photoName + '.' + url.Split('.').Last();
         client.DownloadFile(new Uri(url), fileName);
         SetWallpaper(fileName);
     }
